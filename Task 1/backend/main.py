@@ -119,76 +119,81 @@ async def fetch_pdf_from_url(url: str) -> bytes:
         )
 
 def get_few_shot_examples(audience_level: str) -> str:
-    return """Here are examples of how to explain a concept at different levels:
+    return """Here are carefully crafted examples demonstrating how to adapt explanations for different audiences:
 
-Original: "The mitochondria is the powerhouse of the cell."
+Original Technical Concept: "Photosynthesis converts light energy into chemical energy."
 
-Middle School: "Cells have little parts inside them that make energy. One of them is called mitochondria – it gives power to the cell like a battery!"
+Middle School (Ages 11-14):
+"Plants have a special superpower called photosynthesis! They take sunlight, water from their roots, and air from their leaves to make their own food (sugar) and release oxygen - that's the air we breathe!"
 
-PhD-level: "Mitochondria are double-membraned organelles that perform oxidative phosphorylation to generate ATP, serving as the metabolic hubs of eukaryotic cells."
+High School (Ages 14-18):
+"Photosynthesis is the biochemical process where plants use chlorophyll in their leaves to capture sunlight energy. This energy converts carbon dioxide and water into glucose (C₆H₁₂O₆) and oxygen through light-dependent and light-independent reactions."
 
-Please use these examples to guide the tone and complexity of your response."""
+Undergraduate (College Level):
+"Photosynthesis consists of two main phases: the light-dependent reactions in thylakoid membranes that produce ATP and NADPH, and the Calvin cycle in the stroma that fixes CO₂ into organic compounds using the Rubisco enzyme."
+
+Graduate/PhD Level:
+"The photosynthetic electron transport chain employs photosystems II and I to create proton gradients across thylakoid membranes, driving ATP synthase while simultaneously generating reducing equivalents for carbon fixation via the C3 pathway or, in some species, C4 and CAM adaptations to photorespiration."
+
+Key Adaptation Principles:
+1. Complexity: Adjust technical terminology and sentence structure
+2. Engagement: Use relatable analogies for younger audiences
+3. Precision: Include exact mechanisms for advanced audiences
+4. Visual Cues: Suggest mental imagery where helpful
+
+Please apply these adaptation principles to your explanation."""
+
+
+def get_chain_of_thought_examples() -> str:
+    return """Advanced Chain-of-Thought Demonstration:
+
+                Scientific Example:
+                Q: Why does ice float on water?
+                A: Let's analyze this systematically:
+                1. Consider water's density: 1 g/cm³ at 4°C
+                2. Observe hydrogen bonding creates hexagonal lattice when freezing
+                3. This lattice increases volume by ~9% compared to liquid water
+                4. Density = mass/volume → lower density (0.917 g/cm³) for ice
+                5. Buoyancy principle: less dense materials float
+                Conclusion: Ice floats due to crystalline structure reducing density
+
+                Mathematical Example:
+                Q: Solve for x: 3x + 7 = 22
+                A: Step-by-step solution:
+                1. Original equation: 3x + 7 = 22
+                2. Subtract 7 from both sides: 3x = 15
+                3. Divide both sides by 3: x = 5
+                Verification: 3(5) + 7 = 15 + 7 = 22 ✓
+
+                Economic Example:
+                Q: How does inflation affect savings?
+                A: Structured reasoning:
+                1. Define inflation: general price level increase
+                2. Consider $100 at 2% interest vs. 3% inflation
+                3. Real value = nominal value / (1 + inflation)
+                4. After 1 year: $102/1.03 ≈ $99.03
+                5. Conclusion: Savings lose purchasing power
+
+                Chain-of-Thought Best Practices:
+                1. Explicitly number each reasoning step
+                2. Include relevant formulas/definitions
+                3. Show verification when possible
+                4. Use domain-specific terminology appropriately
+                5. Maintain logical flow between steps
+
+                Apply this rigorous approach to complex problems requiring detailed analysis."""
 
 def create_prompt(topic: str, audience_level: str, paper_content: Optional[str] = None) -> str:
-    if paper_content:
-        base_prompt = f"""You are an expert educator tasked with analyzing and explaining a research paper to a {audience_level} audience.
-
-Paper Content:
-{paper_content}
-
-Please analyze this paper and create a comprehensive summary that:
-1. Explains the main research findings
-2. Breaks down complex concepts
-3. Describes any visual elements or data
-4. Maintains appropriate complexity for {audience_level} level
-
-{get_few_shot_examples(audience_level)}
-
-Format your response using proper markdown:
-# Summary
-One sentence overview
-
-## Introduction
-Engaging introduction appropriate for {audience_level} level
-
-## Key Findings
-* Main point 1
-* Main point 2
-* Main point 3
-
-## Visual Analysis
-Analysis of graphs, figures, and images (if any)
-
-## Conclusion
-Clear wrap-up with key takeaways"""
+    # Decide which example style to use
+    if audience_level in ["Graduate", "PhD"]:
+        example_section = get_chain_of_thought_examples()
     else:
-        base_prompt = f"""You are an expert educator tasked with explaining {topic} to a {audience_level} audience.
+        example_section = get_few_shot_examples(audience_level)
 
-Follow these steps:
-1. First, identify the core concepts of {topic}
-2. Break down important subtopics
-3. Organize the logical flow
-4. Write a comprehensive article that matches the {audience_level} comprehension level
-
-{get_few_shot_examples(audience_level)}
-
-Format your response using proper markdown:
-# Summary
-One sentence overview
-
-## Introduction
-Engaging introduction appropriate for {audience_level} level
-
-## Main Concepts
-* Point 1
-* Point 2
-* Point 3
-
-## Detailed Explanation
-Key concepts with examples
-
-## Conclusion
-Clear wrap-up with key takeaways"""
+    if paper_content:
+        base_prompt = f"""You are an expert educator tasked with analyzing and explaining a research paper to a {audience_level} audience.\n\nPaper Content:\n{paper_content}\n\nPlease analyze this paper and create a comprehensive summary that:\n1. Explains the main research findings\n2. Breaks down complex concepts\n3. Describes any visual elements or data\n4. Maintains appropriate complexity for {audience_level} level\n\n{example_section}\n\nFormat your response using proper markdown:\n# Summary\nOne sentence overview\n\n## Introduction\nEngaging introduction appropriate for {audience_level} level\n\n## Key Findings\n* Main point 1\n* Main point 2\n* Main point 3\n\n## Visual Analysis\nAnalysis of graphs, figures, and images (if any)\n\n## Conclusion\nClear wrap-up with key takeaways"""
+    else:
+        base_prompt = f"""You are an expert educator tasked with explaining {topic} to a {audience_level} audience.\n\nFollow these steps:\n1. First, identify the core concepts of {topic}\n2. Break down important subtopics\n3. Organize the logical flow\n4. Write a comprehensive article that matches the {audience_level} comprehension level\n\n{example_section}\n\nFormat your response using proper markdown:\n# Summary\nOne sentence overview\n\n## Introduction\nEngaging introduction appropriate for {audience_level} level\n\n## Main Concepts\n* Point 1\n* Point 2\n* Point 3\n\n## Detailed Explanation\nKey concepts with examples\n\n## Conclusion\nClear wrap-up with key takeaways"""
 
     return base_prompt
 
