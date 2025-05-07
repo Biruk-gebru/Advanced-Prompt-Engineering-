@@ -14,22 +14,12 @@ graph TD
     C --> G[Prompt Engineering Pipeline]
     F --> G
     
-   
-    subgraph PE [Prompt Engineering]
-        direction TB
-        G
-        click G "javascript:void(0);"  %% optional, to make clickable if embedded
-    end
-    
-    
     G -->|1. Chain of Thought| H[Core Concept Identification]
     H --> I[Subtopic Breakdown]
     I --> J[Logical Flow Organization]
     
-    
     G -->|2. Few-shot Learning| K[Example-based Adaptation]
     K --> L[Audience Level Matching]
-    
     
     J --> M[Content Generation]
     L --> M
